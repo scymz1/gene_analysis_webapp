@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Model files and data
+*.npz
+*.pt
+*.pth
+*.pkl
+*.json
+*.csv
+*.txt
+*.torch
+*.onnx
+*.pb
+*.pbtxt
+*.h5
+*.keras
+*.hdf5
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.lzma
+*.tar.lz
+*.tar.Z
+*.npy
+
+# Node
+node_modules/
+.next/
+.cache/
+dist/
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+/backend/menu/LLMs/
+/next-js-frontend/node_modules/
+/output/
+/data/
+/models/
+/embeddings/
