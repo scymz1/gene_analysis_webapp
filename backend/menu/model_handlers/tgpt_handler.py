@@ -14,6 +14,7 @@ from torch import nn, optim
 import pickle
 # 修改导入路径，因为LLMs现在在menu目录下
 from ..LLMs.tGPT_main.benchmarking_dataloader_EBD import get_dataloaders
+from peft import LoraConfig, get_peft_model
 
 def process_tgpt_model(input_dir, output_dir, results):
     """Process files using tGPT model"""
@@ -152,16 +153,276 @@ def dataset_generator(directory_path, output_dir, is_sorted=True, seq_length=819
     except Exception as e:
         raise Exception(f"Error in dataset generation: {str(e)}")
 
+class FinetuningModel(nn.Module):
+    def __init__(self, model, input_size=1024, hidden_size=512, num_classes=2, ft_list=['c_attn']):
+        super(FinetuningModel, self).__init__()
+        self.tGPTmodel = model
+        
+        # Adding Lora : QKV
+        config = LoraConfig(
+            r=8,
+            lora_alpha=8,
+            target_modules=ft_list,
+            lora_dropout=0.05,
+            bias="none",
+            task_type="SEQ_CLS"
+        )
+
+        get_peft_model(self.tGPTmodel, config)
+        
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, seq):
+        # 确保输入是长整型
+        if seq.dtype != torch.long:
+            seq = seq.long()
+        
+        embedding = self.tGPTmodel(seq)
+        ebd = embedding.last_hidden_state
+        ebd = torch.mean(ebd, dim=1)
+        x = self.fc1(ebd)
+        x = self.relu(x)
+        x = self.fc2(x)
+        x = self.relu(x)
+        x = self.fc3(x)
+        return x, ebd
+
 def finetune_tgpt_model(working_dir, custom_params):
     """Finetune tGPT model"""
     try:
-        # TODO: Implement tGPT finetuning
+        # Set default parameters
+        params = {
+            'ep_num': 2,
+            'train_batch_size': 128,
+            'test_batch_size': 128,
+            'lr': 0.0001,
+            'train_rate': 0.8,
+            'ft_list': ['c_attn']
+        }
+        
+        # Update with custom parameters if provided
+        if custom_params:
+            params.update(custom_params)
+
+        # Set paths
+        label_path = os.path.join(working_dir, 'tGPT', 'labels')
+        data_path = os.path.join(working_dir, 'tGPT', 'samples')
+        output_path = os.path.join(working_dir, 'tGPT', 'output')
+        os.makedirs(output_path, exist_ok=True)
+
+        # Initialize model
+        checkpoint = "lixiangchun/transcriptome-gpt-1024-8-16-64"
+        base_model = GPT2LMHeadModel.from_pretrained(checkpoint, output_hidden_states=True).transformer
+        model = FinetuningModel(
+            model=base_model,
+            ft_list=params['ft_list']
+        )
+
+        # Set device and seed
+        seed = 24
+        torch.manual_seed(seed)
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        model = model.to(device)
+
+        # Initialize training components
+        loss_function = nn.BCEWithLogitsLoss()
+        model_parameters = [p for p in model.parameters() if p.requires_grad]
+        optimizer = optim.AdamW(model_parameters, lr=params['lr'])
+
+        # 创建一个类似 args 的对象来存储参数
+        class Args:
+            def __init__(self, **kwargs):
+                for key, value in kwargs.items():
+                    setattr(self, key, value)
+
+        # 创建 args 对象
+        args = Args(
+            label_path=label_path,
+            data_path=data_path,
+            train_batch_size=params['train_batch_size'],
+            test_batch_size=params['test_batch_size'],
+            train_rate=params['train_rate']
+        )
+
+        # Get dataloaders
+        train_data_loader, test_data_loader = get_dataloaders(args)
+
+        # Initialize metrics storage
+        final_metrics = {
+            'final_train': {
+                'accuracy': 0,
+                'precision': 0,
+                'recall': 0,
+                'f1': 0,
+                'loss': 0,
+                'auroc': 0
+            },
+            'final_test': {
+                'accuracy': 0,
+                'precision': 0,
+                'recall': 0,
+                'f1': 0,
+                'loss': 0,
+                'auroc': 0
+            },
+            'train_loss': [],
+            'test_loss': [],
+            'epochs': []
+        }
+
+        # Training loop
+        total_batches = len(train_data_loader)
+        for epoch in range(params['ep_num']):
+            # Send epoch progress
+            yield json.dumps({
+                'progress': {
+                    'currentEpoch': epoch + 1,
+                    'totalEpochs': params['ep_num'],
+                    'currentBatch': 0,
+                    'totalBatches': total_batches
+                }
+            }).encode() + b'\n'
+
+            # Training phase
+            model.train()
+            loss_sum = 0
+            pred_all = []
+            lbl_all = []
+
+            for batch_idx, (cell_sentences, labels) in enumerate(train_data_loader):
+                # Send batch progress
+                yield json.dumps({
+                    'progress': {
+                        'currentEpoch': epoch + 1,
+                        'totalEpochs': params['ep_num'],
+                        'currentBatch': batch_idx + 1,
+                        'totalBatches': total_batches
+                    }
+                }).encode() + b'\n'
+
+                # 确保输入是长整型
+                cell_sentences = cell_sentences.long().to(device)
+                labels = labels.float().to(device)
+
+                pred, _ = model(cell_sentences)
+                loss = loss_function(pred, labels)
+
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+                loss_sum += loss.item()
+                pred_all.extend(pred.detach().cpu())
+                lbl_all.extend(labels.cpu())
+
+            pred_all = torch.stack(pred_all)
+            lbl_all = torch.stack(lbl_all)
+
+            train_metrics = {
+                'loss': loss_sum / len(train_data_loader),
+                'accuracy': Accuracy_score(pred_all, lbl_all),
+                'precision': Precision_score(pred_all, lbl_all),
+                'recall': Recall_score(pred_all, lbl_all),
+                'f1': F1_score(pred_all, lbl_all),
+                'auroc': AUROC_score(pred_all, lbl_all)
+            }
+
+            # Testing phase
+            model.eval()
+            loss_sum = 0
+            pred_all = []
+            lbl_all = []
+            ebd_all = []
+
+            with torch.no_grad():
+                for batch in test_data_loader:
+                    cell_sentences, labels = batch
+                    # 确保输入是长整型
+                    cell_sentences = cell_sentences.long().to(device)
+                    labels = labels.float().to(device)
+                    
+                    pred, ebd = model(cell_sentences)
+                    loss = loss_function(pred, labels)
+
+                    loss_sum += loss.item()
+                    pred_all.extend(pred.cpu())
+                    lbl_all.extend(labels.cpu())
+                    ebd_all.extend(ebd.cpu())
+
+            pred_all = torch.stack(pred_all)
+            lbl_all = torch.stack(lbl_all)
+            ebd_all = torch.stack(ebd_all)
+
+            test_metrics = {
+                'loss': loss_sum / len(test_data_loader),
+                'accuracy': Accuracy_score(pred_all, lbl_all),
+                'precision': Precision_score(pred_all, lbl_all),
+                'recall': Recall_score(pred_all, lbl_all),
+                'f1': F1_score(pred_all, lbl_all),
+                'auroc': AUROC_score(pred_all, lbl_all)
+            }
+
+            # Update metrics
+            final_metrics['epochs'].append(epoch + 1)
+            final_metrics['train_loss'].append(train_metrics['loss'])
+            final_metrics['test_loss'].append(test_metrics['loss'])
+            final_metrics['final_train'] = train_metrics
+            final_metrics['final_test'] = test_metrics
+
+            # Send current metrics
+            yield json.dumps({
+                'metrics': final_metrics
+            }).encode() + b'\n'
+
+        # Save final model and test results
+        model_save_path = os.path.join(output_path, 'model.pth')
+        torch.save(model.state_dict(), model_save_path)
+
+        test_results = {
+            'pred': pred_all.tolist(),
+            'label': lbl_all.tolist(),
+            'ebd': ebd_all.tolist()
+        }
+        results_save_path = os.path.join(output_path, 'testset_records.pkl')
+        with open(results_save_path, 'wb') as f:
+            pickle.dump(test_results, f)
+
+        # Send final results
         yield json.dumps({
-            'message': 'tGPT finetuning not implemented yet'
+            'metrics': final_metrics,
+            'model_path': model_save_path,
+            'results_path': results_save_path
         }).encode() + b'\n'
+
     except Exception as e:
+        error_msg = f"tGPT finetuning error: {str(e)}\nFull traceback:\n{traceback.format_exc()}"
+        print(error_msg)
         yield json.dumps({
-            'error': f'tGPT finetuning error: {str(e)}'
+            'error': error_msg,
+            'metrics': {
+                'final_train': {
+                    'accuracy': 0,
+                    'precision': 0,
+                    'recall': 0,
+                    'f1': 0,
+                    'loss': 0,
+                    'auroc': 0
+                },
+                'final_test': {
+                    'accuracy': 0,
+                    'precision': 0,
+                    'recall': 0,
+                    'f1': 0,
+                    'loss': 0,
+                    'auroc': 0
+                },
+                'train_loss': [],
+                'test_loss': [],
+                'epochs': []
+            }
         }).encode() + b'\n'
 
 class MLP_Classifier(nn.Module):

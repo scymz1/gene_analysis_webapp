@@ -68,3 +68,10 @@ Thumbs.db
 /data/
 /models/
 /embeddings/
+
+# Ignore all JSON files
+*.json
+
+# But include JSON files in specific directories
+!next-js-front/*.json
+!next-js-front/**/*.json
