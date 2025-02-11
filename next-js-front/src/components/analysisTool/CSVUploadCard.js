@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { useState } from 'react';
 import ModelTrainingCard from './ModelTrainingCard';
 
 export default function CSVUploadCard() {
@@ -60,14 +61,6 @@ export default function CSVUploadCard() {
             console.error('Clear cache error:', error);
         }
     };
-
-    // useEffect(() => {
-    //     return () => {
-    //         if (currentDirs) {
-    //             clearCache();
-    //         }
-    //     };
-    // }, [currentDirs]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();

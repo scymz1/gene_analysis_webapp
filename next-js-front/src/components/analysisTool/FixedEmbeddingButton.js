@@ -37,9 +37,6 @@ export default function FixedEmbeddingButton({ selectedModel }) {
         currentBatch: 0,
         totalBatches: 0
     });
-    const [epochs, setEpochs] = useState(3);
-    const [trainRate, setTrainRate] = useState(0.8);
-    const [learningRate, setLearningRate] = useState(0.0001);
 
     const handleParamChange = (e) => {
         const { name, value } = e.target;

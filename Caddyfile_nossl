@@ -1,0 +1,22 @@
+phenoprofiler.org {
+    # Reverse proxy for Next.js frontend
+    handle /* {
+        reverse_proxy localhost:3000 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    # Reverse proxy for Django backend
+    handle /phenoProfiler/* {
+        reverse_proxy localhost:8000 {
+            header_up X-Forwarded-Proto https
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    # Enable HTTPS automatically
+    tls internal
+}

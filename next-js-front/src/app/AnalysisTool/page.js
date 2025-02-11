@@ -1,4 +1,4 @@
-import DNAToProteinCard from "@/components/analysisTool/DNAToProteinCard";
+// import DNAToProteinCard from "@/components/analysisTool/DNAToProteinCard";
 import CardGrid from "../../components/analysisTool/FlipCard/CardGrid";
 import CSVUploadCard from "@/components/analysisTool/CSVUploadCard";
 

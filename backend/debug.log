@@ -1,0 +1,55 @@
+INFO 2025-02-11 02:49:29,409 autoreload 399274 128044357251200 Watching for file changes with StatReloader
+INFO 2025-02-11 02:51:13,583 autoreload 399274 128044357251200 /media/volume/PhenoProfiler_volume/gene_analysis_webapp/backend/geneAnalysis/settings.py changed, reloading.
+INFO 2025-02-11 02:51:14,283 autoreload 399495 138569167282304 Watching for file changes with StatReloader
+INFO 2025-02-11 02:51:24,652 views 399495 138565342201536 Received analysis request
+INFO 2025-02-11 02:51:24,801 views 399495 138565342201536 Received 5 files
+DEBUG 2025-02-11 02:51:24,806 PngImagePlugin 399495 138565342201536 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 02:51:24,806 PngImagePlugin 399495 138565342201536 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 02:51:24,823 PngImagePlugin 399495 138565342201536 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 02:51:24,823 PngImagePlugin 399495 138565342201536 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 02:51:24,838 PngImagePlugin 399495 138565342201536 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 02:51:24,838 PngImagePlugin 399495 138565342201536 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 02:51:24,849 PngImagePlugin 399495 138565342201536 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 02:51:24,850 PngImagePlugin 399495 138565342201536 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 02:51:24,861 PngImagePlugin 399495 138565342201536 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 02:51:24,861 PngImagePlugin 399495 138565342201536 STREAM b'IDAT' 41 65536
+INFO 2025-02-11 02:51:25,333 _builder 399495 138565342201536 Loading pretrained weights from Hugging Face hub (timm/resnet50.a1_in1k)
+DEBUG 2025-02-11 02:51:25,335 connectionpool 399495 138565342201536 Starting new HTTPS connection (1): huggingface.co:443
+DEBUG 2025-02-11 02:51:25,440 connectionpool 399495 138565342201536 https://huggingface.co:443 "HEAD /timm/resnet50.a1_in1k/resolve/main/model.safetensors HTTP/1.1" 302 0
+INFO 2025-02-11 02:51:25,440 _hub 399495 138565342201536 [timm/resnet50.a1_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+INFO 2025-02-11 02:51:25,773 views 399495 138565342201536 Loading model from: /media/volume/PhenoProfiler_volume/gene_analysis_webapp/backend/phenoProfiler/PhenoProfilerModel/best.pt
+INFO 2025-02-11 02:51:26,303 views 399495 138565342201536 Successfully processed images and generated embeddings
+ERROR 2025-02-11 05:05:44,721 exception 399495 138565323327168 Invalid HTTP_HOST header: '149.165.154.225:8000'. You may need to add '149.165.154.225' to ALLOWED_HOSTS.
+Traceback (most recent call last):
+  File "/media/volume/PhenoProfiler_volume/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/volume/PhenoProfiler_volume/venv/lib/python3.12/site-packages/django/utils/deprecation.py", line 128, in __call__
+    response = self.process_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/volume/PhenoProfiler_volume/venv/lib/python3.12/site-packages/django/middleware/common.py", line 48, in process_request
+    host = request.get_host()
+           ^^^^^^^^^^^^^^^^^^
+  File "/media/volume/PhenoProfiler_volume/venv/lib/python3.12/site-packages/django/http/request.py", line 151, in get_host
+    raise DisallowedHost(msg)
+django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '149.165.154.225:8000'. You may need to add '149.165.154.225' to ALLOWED_HOSTS.
+WARNING 2025-02-11 05:05:44,723 log 399495 138565323327168 Bad Request: /
+INFO 2025-02-11 15:04:40,459 autoreload 445766 130540940050560 Watching for file changes with StatReloader
+INFO 2025-02-11 15:05:00,645 views 445766 130537110898368 Received analysis request
+INFO 2025-02-11 15:05:01,067 views 445766 130537110898368 Received 5 files
+DEBUG 2025-02-11 15:05:01,073 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,073 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 15:05:01,090 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,090 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 15:05:01,105 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,105 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 15:05:01,118 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,118 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 15:05:01,130 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,130 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+INFO 2025-02-11 15:05:01,616 _builder 445766 130537110898368 Loading pretrained weights from Hugging Face hub (timm/resnet50.a1_in1k)
+DEBUG 2025-02-11 15:05:01,618 connectionpool 445766 130537110898368 Starting new HTTPS connection (1): huggingface.co:443
+DEBUG 2025-02-11 15:05:01,699 connectionpool 445766 130537110898368 https://huggingface.co:443 "HEAD /timm/resnet50.a1_in1k/resolve/main/model.safetensors HTTP/1.1" 302 0
+INFO 2025-02-11 15:05:01,700 _hub 445766 130537110898368 [timm/resnet50.a1_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+INFO 2025-02-11 15:05:02,040 views 445766 130537110898368 Loading model from: /media/volume/PhenoProfiler_volume/gene_analysis_webapp/backend/phenoProfiler/PhenoProfilerModel/best.pt
+INFO 2025-02-11 15:05:02,586 views 445766 130537110898368 Successfully processed images and generated embeddings

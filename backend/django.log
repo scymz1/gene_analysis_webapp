@@ -1,0 +1,20 @@
+INFO 2025-02-11 15:04:40,459 autoreload 445766 130540940050560 Watching for file changes with StatReloader
+INFO 2025-02-11 15:05:00,645 views 445766 130537110898368 Received analysis request
+INFO 2025-02-11 15:05:01,067 views 445766 130537110898368 Received 5 files
+DEBUG 2025-02-11 15:05:01,073 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,073 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 15:05:01,090 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,090 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 15:05:01,105 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,105 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 15:05:01,118 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,118 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+DEBUG 2025-02-11 15:05:01,130 PngImagePlugin 445766 130537110898368 STREAM b'IHDR' 16 13
+DEBUG 2025-02-11 15:05:01,130 PngImagePlugin 445766 130537110898368 STREAM b'IDAT' 41 65536
+INFO 2025-02-11 15:05:01,616 _builder 445766 130537110898368 Loading pretrained weights from Hugging Face hub (timm/resnet50.a1_in1k)
+DEBUG 2025-02-11 15:05:01,618 connectionpool 445766 130537110898368 Starting new HTTPS connection (1): huggingface.co:443
+DEBUG 2025-02-11 15:05:01,699 connectionpool 445766 130537110898368 https://huggingface.co:443 "HEAD /timm/resnet50.a1_in1k/resolve/main/model.safetensors HTTP/1.1" 302 0
+INFO 2025-02-11 15:05:01,700 _hub 445766 130537110898368 [timm/resnet50.a1_in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+INFO 2025-02-11 15:05:02,040 views 445766 130537110898368 Loading model from: /media/volume/PhenoProfiler_volume/gene_analysis_webapp/backend/phenoProfiler/PhenoProfilerModel/best.pt
+INFO 2025-02-11 15:05:02,586 views 445766 130537110898368 Successfully processed images and generated embeddings
+[11/Feb/2025 15:05:02] "POST /phenoProfiler/analyze/ HTTP/1.1" 200 2816
