@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH --job-name=<tgpt-ebd>
+#SBATCH --mail-user=<wang.qing@ufl.edu>
+#SBATCH --mail-type=FAIL,END
+#SBATCH --output <my_job-%j.out>
+#SBATCH --ntasks=1
+#SBATCH --mem=16gb
+#SBATCH --time=3:00:00
+
+
+python building_dataset.py

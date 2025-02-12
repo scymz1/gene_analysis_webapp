@@ -43,7 +43,8 @@ wheels/
 *.tar.lz
 *.tar.Z
 *.npy
-
+*.h5ad
+*.ckpt
 # Node
 node_modules/
 .next/
@@ -62,7 +63,7 @@ coverage/
 Thumbs.db
 
 # Project specific
-/backend/menu/LLMs/
+# /backend/menu/LLMs/
 /next-js-frontend/node_modules/
 /output/
 /data/

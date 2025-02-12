@@ -1,0 +1,12 @@
+#!/bin/bash
+#SBATCH --job-name=<tGPT>
+#SBATCH --mail-user=<wang.qing@ufl.edu>
+#SBATCH --mail-type=FAIL,END
+#SBATCH --output <my_job-%j.out>
+#SBATCH --time=240:00:00
+#SBATCH --partition=hpg-ai
+#SBATCH --gpus=a100:1
+#SBATCH --mem=30gb
+#SBATCH --cpus-per-task=3
+
+python benchmarking_mainV2.py
