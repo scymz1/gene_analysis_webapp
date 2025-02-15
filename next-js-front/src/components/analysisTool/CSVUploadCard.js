@@ -198,7 +198,7 @@ export default function CSVUploadCard() {
                                                     ? 'bg-gray-400 cursor-not-allowed'
                                                     : 'bg-blue-600 hover:bg-blue-700'}`}
                                     >
-                                        {isLoading ? 'Uploading and Preprocessing...' : 'Upload and Preprocess CSV Files'}
+                                        {isLoading ? 'Uploading and Preprocessing... (This may take a long time)' : 'Upload and Preprocess CSV Files'}
                                     </button>
 
                                     {currentDirs && (
@@ -227,7 +227,7 @@ export default function CSVUploadCard() {
                 )}
                 
                 {/* Training options only shown after successful upload */}
-                {currentDirs && <ModelTrainingCard selectedModel={selectedModel} />}
+                {currentDirs && <ModelTrainingCard selectedModel={selectedModel} currentDirs={currentDirs}/>}
             </div>
         </div>
     );

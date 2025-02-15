@@ -21,13 +21,13 @@ ChartJS.register(
     Legend
 );
 
-export default function FixedEmbeddingButton({ selectedModel }) {
+export default function FixedEmbeddingButton({ selectedModel, currentDirs }) {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [metrics, setMetrics] = useState(null);
     const [modelPath, setModelPath] = useState(null);
     const [params, setParams] = useState({
-        ep_num: 3,
+        ep_num: 10,
         train_rate: 0.8,
         lr: 0.0001,
     });
@@ -73,7 +73,9 @@ export default function FixedEmbeddingButton({ selectedModel }) {
                     model: selectedModel,
                     ep_num: params.ep_num,
                     train_rate: params.train_rate,
-                    lr: params.lr
+                    lr: params.lr,
+                    input_directory: currentDirs.input_directory,
+                    output_directory: currentDirs.output_directory
                 }),
             });
 

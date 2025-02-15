@@ -21,7 +21,7 @@ ChartJS.register(
     Legend
 );
 
-export default function FinetuneButton({ selectedModel }) {
+export default function FinetuneButton({ selectedModel, currentDirs }) {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [metrics, setMetrics] = useState(null);
@@ -71,7 +71,9 @@ export default function FinetuneButton({ selectedModel }) {
                     model: selectedModel,
                     ep_num: params.ep_num,
                     train_rate: params.train_rate,
-                    lr: params.lr
+                    lr: params.lr,
+                    input_directory: currentDirs.input_directory,
+                    output_directory: currentDirs.output_directory
                 }),
             });
 

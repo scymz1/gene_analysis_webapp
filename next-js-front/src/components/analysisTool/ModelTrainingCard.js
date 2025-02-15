@@ -2,7 +2,7 @@ import { useState } from 'react';
 import FinetuneButton from './FinetuneButton';
 import FixedEmbeddingButton from './FixedEmbeddingButton';
 
-export default function ModelTrainingCard({ selectedModel }) {
+export default function ModelTrainingCard({ selectedModel, currentDirs }) {
     const [activeTab, setActiveTab] = useState('fixed');
 
     return (
@@ -78,10 +78,10 @@ export default function ModelTrainingCard({ selectedModel }) {
                 {/* Content */}
                 <div className="p-6">
                     <div className={`${activeTab === 'fixed' ? 'block' : 'hidden'}`}>
-                        <FixedEmbeddingButton selectedModel={selectedModel} />
+                        <FixedEmbeddingButton selectedModel={selectedModel} currentDirs={currentDirs}/>
                     </div>
                     <div className={`${activeTab === 'finetune' ? 'block' : 'hidden'}`}>
-                        <FinetuneButton selectedModel={selectedModel} />
+                        <FinetuneButton selectedModel={selectedModel} currentDirs={currentDirs}/>
                     </div>
                 </div>
             </div>

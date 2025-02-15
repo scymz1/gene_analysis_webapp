@@ -29,7 +29,37 @@ from .model_handlers.tgpt_handler import (
     finetune_tgpt_model,
     train_fixed_embeddings_tgpt
 )
+from .model_handlers.scGPT_handler import (
+    process_scGPT_model,
+    train_fixed_embeddings_scGPT,
+    finetune_scGPT
+)
 
+from .model_handlers.scFoundation_handler import (
+    process_scfoundation_model, 
+    train_fixed_embeddings_scFoundation,
+    finetune_scFoundation
+)
+from .model_handlers.scBERT_handler import (
+    process_scBERT_model,
+    train_fixed_embeddings_scBERT,
+    finetune_scBERT 
+)
+from .model_handlers.OpenBioMed_handler import (
+    process_OpenBioMed_model,
+    train_fixed_embeddings_OpenBioMed,
+    finetune_OpenBioMed
+)
+from .model_handlers.CellPLM_handler import (
+    process_CellPLM_model,
+    train_fixed_embeddings_CellPLM,
+    finetune_CellPLM
+)
+from .model_handlers.GeneFormer_handler import (
+    process_GeneFormer_model,
+    train_fixed_embeddings_GeneFormer,
+    finetune_GeneFormer
+)
 
 class MenuViewSet(viewsets.ModelViewSet):
     queryset = Menu.objects.all()
@@ -59,7 +89,7 @@ def upload_csv(request):
     # Save uploaded files
     files = request.FILES.getlist('files')
     results = []
-    saved_file_paths = []
+    # saved_file_paths = []
     
     for csv_file in files:
         if not csv_file.name.endswith('.csv'):
@@ -73,7 +103,7 @@ def upload_csv(request):
                 for chunk in csv_file.chunks():
                     destination.write(chunk)
             
-            saved_file_paths.append(file_path)
+            # saved_file_paths.append(file_path)
             df = pd.read_csv(file_path)
             results.append({
                 'filename': csv_file.name,
@@ -93,7 +123,17 @@ def upload_csv(request):
         elif selected_model == 'tGPT':
             return process_tgpt_model(input_dir, output_dir, results)
         elif selected_model == 'scGPT':
-            return process_scgpt_model(input_dir, output_dir, results)
+            return process_scGPT_model(input_dir, output_dir, results)
+        elif selected_model == 'scFoundation':
+            return process_scfoundation_model(input_dir, output_dir, results)
+        elif selected_model == 'scBERT':
+            return process_scBERT_model(input_dir, output_dir, results)
+        elif selected_model == 'Openbiomed(cellLM)':
+            return process_OpenBioMed_model(input_dir, output_dir, results) 
+        elif selected_model == 'CellPLM':
+            return process_CellPLM_model(input_dir, output_dir, results)
+        elif selected_model == 'GeneFormer':
+            return process_GeneFormer_model(input_dir, output_dir, results)
         else:
             return Response({
                 'error': f'Model {selected_model} processing not implemented yet'
@@ -111,10 +151,10 @@ def upload_csv(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def process_scgpt_model(input_dir, output_dir, results):
-    """Process files using scGPT model"""
-    # Add scGPT specific processing logic here
-    raise NotImplementedError("scGPT processing not implemented yet")
+# def process_scgpt_model(input_dir, output_dir, results):
+#     """Process files using scGPT model"""
+#     # Add scGPT specific processing logic here
+#     raise NotImplementedError("scGPT processing not implemented yet")
 
 @api_view(['POST'])
 def clear_cache(request):
@@ -169,7 +209,17 @@ def finetune_model(request):
             elif selected_model == 'tGPT':
                 yield from finetune_tgpt_model(working_dir, custom_params)
             elif selected_model == 'scGPT':
-                yield from finetune_scgpt_model(working_dir, custom_params)
+                yield from finetune_scGPT(working_dir, custom_params)
+            elif selected_model == 'scFoundation':
+                yield from finetune_scFoundation(working_dir, custom_params)
+            elif selected_model == 'scBERT':
+                yield from finetune_scBERT(working_dir, custom_params)
+            elif selected_model == 'Openbiomed(cellLM)':
+                yield from finetune_OpenBioMed(working_dir, custom_params)
+            elif selected_model == 'CellPLM':
+                yield from finetune_CellPLM(working_dir, custom_params)
+            elif selected_model == 'GeneFormer':
+                yield from finetune_GeneFormer(working_dir, custom_params)
             else:
                 yield json.dumps({
                     'error': f'Finetuning not implemented for model {selected_model}'
@@ -188,12 +238,6 @@ def finetune_model(request):
         content_type='application/x-ndjson'
     )
 
-def finetune_scgpt_model(working_dir, custom_params):
-    """Finetune scGPT model"""
-    yield json.dumps({
-        'error': 'scGPT finetuning not implemented yet'
-    }).encode() + b'\n'
-
 @api_view(['POST'])
 def train_fixed_embeddings(request):
     def generate_progress():
@@ -207,23 +251,40 @@ def train_fixed_embeddings(request):
                 }).encode() + b'\n'
                 return
 
-            base_path = os.path.join(os.path.dirname(__file__), "UCE_DB", "labels&samples")
-            dirs = [d for d in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, d))]
-            if not dirs:
-                yield json.dumps({
-                    'error': 'No data directories found'
-                }).encode() + b'\n'
-                return
+
             
-            latest_dir = max(dirs)
-            working_dir = os.path.join(base_path, latest_dir)
+            if not custom_params.get('output_directory'):
+                base_path = os.path.join(os.path.dirname(__file__), "UCE_DB", "labels&samples")
+                dirs = [d for d in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, d))]
+                if not dirs:
+                    yield json.dumps({
+                        'error': 'No data directories found'
+                    }).encode() + b'\n'
+                    return
+                latest_dir = max(dirs)
+                working_dir = os.path.join(base_path, latest_dir)
+            else:
+                print(f"Using provided output directory: {custom_params.get('output_directory')}")
+                working_dir = custom_params.get('output_directory')
+            
+            
 
             if selected_model == 'UCE':
                 yield from train_fixed_embeddings_uce(working_dir, custom_params)
             elif selected_model == 'tGPT':
                 yield from train_fixed_embeddings_tgpt(working_dir, custom_params)
             elif selected_model == 'scGPT':
-                yield from train_fixed_embeddings_scgpt(working_dir, custom_params)
+                yield from train_fixed_embeddings_scGPT(working_dir, custom_params)
+            elif selected_model == 'scFoundation':
+                yield from train_fixed_embeddings_scFoundation(working_dir, custom_params)
+            elif selected_model == 'scBERT':
+                yield from train_fixed_embeddings_scBERT(working_dir, custom_params)
+            elif selected_model == 'Openbiomed(cellLM)':
+                yield from train_fixed_embeddings_OpenBioMed(working_dir, custom_params)
+            elif selected_model == 'CellPLM':
+                yield from train_fixed_embeddings_CellPLM(working_dir, custom_params)
+            elif selected_model == 'GeneFormer':
+                yield from train_fixed_embeddings_GeneFormer(working_dir, custom_params)
             else:
                 yield json.dumps({
                     'error': f'Fixed embeddings training not implemented for model {selected_model}'
