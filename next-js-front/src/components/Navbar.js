@@ -1,23 +1,28 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const pathname = usePathname(); // Get the current path
 
   return (
-    <nav className="bg-gradient-to-r from-orange-400 via-orange-500 to-blue-500 fixed w-full z-20 top-0 start-0 shadow-lg">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    <nav className="bg-gradient-to-r from-orange-400 via-orange-500 to-blue-500 fixed w-full z-20 top-0 start-0 shadow-lg h-14.1">
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto px-4 relative  -my-12">
         <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-          <img
-            src="https://flowbite.com/docs/images/logo.svg"
-            className="h-8"
-            alt="Flowbite Logo"
-          />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
-            Song Lab
-          </span>
+          <div className="relative">
+            <Image
+              src="/logo.jpg"
+              width={100}
+              height={100}
+              className="w-40 h-40 object-contain"
+              alt="PhenoProfiler Logo"
+              quality={100}
+              unoptimized={true}
+              priority
+            />
+          </div>
         </Link>
         <button
           data-collapse-toggle="navbar-default"
@@ -57,7 +62,7 @@ export default function Navbar() {
                 Home
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 href="/AnalysisTool"
                 className={`block py-2 px-3 rounded md:p-0 ${
@@ -115,6 +120,18 @@ export default function Navbar() {
                 } hover:text-white transition-colors duration-200`}
               >
                 References
+              </Link>
+            </li> */}
+            <li>
+              <Link
+                href="/contact"
+                className={`block py-2 px-3 rounded md:p-0 ${
+                  pathname === "/contact"
+                    ? "text-white font-bold"
+                    : "text-blue-100"
+                } hover:text-white transition-colors duration-200`}
+              >
+                Contact
               </Link>
             </li>
           </ul>

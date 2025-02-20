@@ -69,8 +69,9 @@ export default function Home() {
               width={80}
               height={80}
             /> */}
-            <h1 className="text-2xl text-blue-800 font-semibold">
-              Comprehensive reference map of drug resistance mechanisms in human cancer
+            <h1 className="text-xl text-blue-800 font-semibold text-center">
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              PhenoProfiler : Advancing Morphology Representations for Image-based Drug Discovery
             </h1>
           </div>
         </header>
@@ -83,30 +84,31 @@ export default function Home() {
           <div className="space-y-8">
             {/* Rest of your content sections... */}
             {/* Each section gets additional styling */}
-            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition duration-200">
+            <div className="bg-white rounded-lg p-6 mb-0 shadow-sm hover:shadow-md transition duration-200">
               <h2 className="text-xl font-bold mb-6">About PhenoProfiler</h2>
               
               {/* About Section - Two Column Layout */}
               <div className="flex gap-8">
                 {/* Left Column - Image */}
-                <div className="w-1/2">
+                <div className="w-1/2 relative -ml-3 -mr-6">
                   <Image
-                    src="/PhenoProfiler_structure.png"
+                    src="/Overview-1.png"
                     alt="PhenoProfiler Structure"
-                    width={500}
-                    height={400}
-                    className="w-full h-auto object-contain"
+                    width={1200}
+                    height={960}
+                    className="h-auto object-contain"
+                    quality={100}
+                    unoptimized={true}
+                    priority
                   />
                 </div>
 
                 {/* Right Column - Text */}
-                <div className="w-1/2 prose max-w-none">
-                  <p className="mb-4">
+                <div className="w-1/2 flex flex-col justify-center space-y-6">
+                  <p className="text-justify">
                     <span className="font-bold">PhenoProfiler</span> is an advanced tool for phenotypic profiling of cell morphology, 
                     to efficiently extract phenotypic effects of perturbations from high-throughput imaging.
-                  </p>
-                  <p className="mb-8">
-                    <span className="font-bold">PhenoProfiler</span> operates as an end-to-end image encoder, converting multi-channel 
+                    PhenoProfiler operates as an end-to-end image encoder, converting multi-channel 
                     images directly into low-dimensional quantitative features, thus eliminating the 
                     need for extensive preprocessing in non-end-to-end pipeline. For more details, please refer to our {' '}
                     <a 
@@ -122,11 +124,11 @@ export default function Home() {
               </div>
             </div>
 
-            <hr className="border-gray-200" />
+            {/* <hr className="border-gray-200" /> */}
 
             {/* Image Analysis Section */}
             <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition duration-200">
-              <h3 className="text-lg font-semibold mb-4">Generate Morphology Profiles</h3>
+              <h3 className="text-lg font-semibold mb-4">Apply PhenoProfiler to Your Dataset</h3>
               <form onSubmit={handleAnalysis}>
                 <div className="space-y-6">
                   {/* Image Upload */}
@@ -163,7 +165,7 @@ export default function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                               d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      Generate Morphology Profiles
+                      Run PhenoProfiler
                     </button>
                   </div>
 
@@ -191,12 +193,10 @@ export default function Home() {
               </form>
             </div>
 
-            <hr className="border-gray-200" />
+            {/* <hr className="border-gray-200" />
 
-            {/* Additional sections with same styling pattern */}
             <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition duration-200">
-              {/* ... other sections ... */}
-            </div>
+            </div> */}
           </div>
         </main>
       </div>

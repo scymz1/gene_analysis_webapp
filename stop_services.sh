@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# netstat -tulpn | grep :3000
+
 # Kill Django backend
 pkill -f "python manage.py runserver"
 
