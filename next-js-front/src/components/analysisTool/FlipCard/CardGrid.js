@@ -10,31 +10,31 @@ export default function CardGrid() {
       frontContent: (
         <div>
           <h3 className="text-lg font-bold uppercase text-center">
-            Tools
+            Data Preparation
           </h3>
           {/* <p className="mt-2">🧬</p> */}
         </div>
       ),
       backContent: (
         <p className="text-center">
-          Tools for analyzing gene expression data.
+          Read the instructions for preparing and processing your data before using LLM tools.
         </p>
       ),
       color: "#38b2ac", // Teal
-      link: "/AnalysisTool"
+      link: "/instructions"
     },
     {
       frontContent: (
         <div>
           <h3 className="text-lg font-bold uppercase text-center">
-            Explore Data
+            LLM Tools
           </h3>
           {/* <p className="mt-2">🔄</p> */}
         </div>
       ),
       backContent: (
         <p className="text-center">
-          Explore the dataset.
+          Tools for training/fine-tuning LLMs using your single-cell data and drug responses.
         </p>
       ),
       color: "#d69e2e", // Yellow
@@ -44,18 +44,18 @@ export default function CardGrid() {
       frontContent: (
         <div>
           <h3 className="text-lg font-bold uppercase text-center">
-            Contact Us
+          Explore Data
           </h3>
           {/* <p className="mt-2">🧪</p> */}
         </div>
       ),
       backContent: (
         <p className="text-center">
-          Contact us for any questions or feedback.
+          Browse and download/upload comprehensive single-cell datasets.
         </p>
       ),
       color: "#9f7aea", // Purple
-      link: "/Contact"
+      link: "/Data"
     },
     // {
     //   frontContent: (

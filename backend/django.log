@@ -10,3 +10,4 @@ Performing system checks...
 
 EMBEDDING_DIR /media/volume/Minghao_webserver/gene_analysis_webapp/backend/menu/UCE_main/model_files/protein_embeddings
 [20/Feb/2025 14:40:06] "GET /backend/api/files/?path=lxndt_filter HTTP/1.1" 200 4302
+[20/Feb/2025 14:44:07] "GET /backend/api/files/?path=lxndt_filter HTTP/1.1" 200 4302

@@ -64,6 +64,18 @@ export default function Navbar() {
             </li>
             <li>
               <Link
+                href="/instructions"
+                className={`block py-2 px-3 rounded md:p-0 ${
+                  pathname === "/instructions"
+                    ? "text-white font-bold"
+                    : "text-blue-100"
+                } hover:text-white transition-colors duration-200`}
+              >
+                Instructions
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/AnalysisTool"
                 className={`block py-2 px-3 rounded md:p-0 ${
                   pathname === "/AnalysisTool"
