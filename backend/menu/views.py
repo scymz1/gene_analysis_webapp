@@ -10,14 +10,15 @@ from rest_framework import status
 import pandas as pd
 import io
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from menu.UCE_main.dataset_making import dataset_generator, shape  # Import the dataset_generator and shape functions
 import shutil
 from accelerate import Accelerator
 from menu.UCE_main.get_ebd import main as get_ebd_main
 import traceback  # 添加这个导入
 import sys  # 添加这个导入
-from django.http import StreamingHttpResponse, HttpResponse
+from django.http import StreamingHttpResponse, HttpResponse, JsonResponse, FileResponse
+from django.views.decorators.http import require_http_methods
 import json
 from .model_handlers.uce_handler import (
     process_uce_model,
@@ -60,11 +61,129 @@ from .model_handlers.GeneFormer_handler import (
     train_fixed_embeddings_GeneFormer,
     finetune_GeneFormer
 )
+import zipfile
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def bulk_download(request):
+    try:
+        data = json.loads(request.body)
+        if 'path' not in request.GET:
+            base_path = '/media/volume/Minghao_webserver/dataset/lxndt_filter'
+        else:
+            base_path = os.path.join('/media/volume/Minghao_webserver/dataset', request.GET.get('path'))
+        files = data.get('files', [])
+        print(f"Base path: {base_path}")
+        print(f"Files: {files}")
+        
+        # Create a zip file in memory
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for file_name in files:
+                file_path = os.path.join(base_path, file_name)
+                if os.path.exists(file_path):
+                    if os.path.isfile(file_path):
+                        # Add file to zip with its name as archive name
+                        zip_file.write(file_path, file_name)
+                    elif os.path.isdir(file_path):
+                        # Walk through directory and add all files
+                        for root, dirs, dir_files in os.walk(file_path):
+                            for f in dir_files:
+                                full_path = os.path.join(root, f)
+                                # Calculate relative path for the archive name
+                                archive_name = os.path.join(
+                                    file_name,  # Keep the original folder name
+                                    os.path.relpath(full_path, file_path)  # Add relative path within the folder
+                                )
+                                zip_file.write(full_path, archive_name)
+        
+        # Prepare response
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=selected_files.zip'
+        return response
+        
+    except Exception as e:
+        print(f"Error in bulk_download: {str(e)}")
+        print("Traceback:")
+        traceback.print_exc()
+        return HttpResponse(str(e), status=500)
+
+@require_http_methods(["GET"])
+def download_file(request):
+    if 'path' not in request.GET:
+        file_path = '/media/volume/Minghao_webserver/dataset/lxndt_filter'
+    else:
+        file_path = os.path.join('/media/volume/Minghao_webserver/dataset', request.GET.get('path'))
+    
+    if not file_path or not os.path.exists(file_path):
+        return HttpResponse(status=404)
+    
+    try:
+        return FileResponse(
+            open(file_path, 'rb'),
+            as_attachment=True,
+            filename=os.path.basename(file_path)
+        )
+    except Exception as e:
+        return HttpResponse(str(e), status=500)
+
+
+def list_files(request):
+    if 'path' not in request.GET:
+        path = '/media/volume/Minghao_webserver/dataset/lxndt_filter'
+    else:
+        path = os.path.join('/media/volume/Minghao_webserver/dataset', request.GET.get('path'))
+    
+    try:
+        files = []
+        with os.scandir(path) as entries:
+            for entry in entries:
+                stats = entry.stat()
+                files.append({
+                    'name': entry.name,
+                    'isDirectory': entry.is_dir(),
+                    'size': stats.st_size,
+                    'modifiedTime': datetime.fromtimestamp(stats.st_mtime).isoformat(),
+                })
+        
+        return JsonResponse({
+            'files': sorted(files, key=lambda x: (not x['isDirectory'], x['name'].lower()))
+        }, safe=False, content_type="application/json")
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 class MenuViewSet(viewsets.ModelViewSet):
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
     permission_classes = [AllowAny]
+
+def cleanup_old_folders(base_path, hours=12):
+    """Delete folders older than specified hours"""
+    try:
+        current_time = datetime.now()
+        # Check both input and labels&samples directories
+        for subdir in ['input', 'labels&samples']:
+            dir_path = os.path.join(base_path, subdir)
+            if not os.path.exists(dir_path):
+                continue
+                
+            for folder_name in os.listdir(dir_path):
+                try:
+                    # Parse the timestamp from folder name
+                    folder_time = datetime.strptime(folder_name, '%Y%m%d_%H%M%S')
+                    # Check if folder is older than specified hours
+                    if current_time - folder_time > timedelta(hours=hours):
+                        folder_path = os.path.join(dir_path, folder_name)
+                        if os.path.exists(folder_path):
+                            shutil.rmtree(folder_path)
+                            print(f"Deleted old folder: {folder_path}")
+                except ValueError:
+                    # Skip folders that don't match timestamp format
+                    continue
+    except Exception as e:
+        print(f"Error during cleanup: {str(e)}")
 
 @api_view(['POST'])
 def upload_csv(request):
@@ -82,6 +201,9 @@ def upload_csv(request):
     base_path = os.path.join(os.path.dirname(__file__), "UCE_DB")
     input_dir = os.path.join(base_path, "input", current_time)
     output_dir = os.path.join(base_path, "labels&samples", current_time)
+    
+    # Clean up old folders before creating new ones
+    cleanup_old_folders(base_path)
     
     # Create input directory if it doesn't exist
     os.makedirs(input_dir, exist_ok=True)

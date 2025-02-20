@@ -1,0 +1,12 @@
+Watching for file changes with StatReloader
+System check identified some issues:
+
+WARNINGS:
+menu.Menu: (models.W042) Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
+	HINT: Configure the DEFAULT_AUTO_FIELD setting or the MenuConfig.default_auto_field attribute to point to a subclass of AutoField, e.g. 'django.db.models.BigAutoField'.
+
+System check identified 1 issue (0 silenced).
+Performing system checks...
+
+EMBEDDING_DIR /media/volume/Minghao_webserver/gene_analysis_webapp/backend/menu/UCE_main/model_files/protein_embeddings
+[20/Feb/2025 14:40:06] "GET /backend/api/files/?path=lxndt_filter HTTP/1.1" 200 4302

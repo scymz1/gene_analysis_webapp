@@ -21,6 +21,7 @@ ChartJS.register(
     Legend
 );
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://scdrugmap.com';
 export default function FinetuneButton({ selectedModel, currentDirs }) {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -62,7 +63,7 @@ export default function FinetuneButton({ selectedModel, currentDirs }) {
         e.preventDefault();
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:8000/api/finetune-model/', {
+            const response = await fetch(`${API_BASE_URL}/backend/api/finetune-model/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -131,7 +132,7 @@ export default function FinetuneButton({ selectedModel, currentDirs }) {
 
     const handleDownload = async (path, filename) => {
         try {
-            const response = await fetch('http://localhost:8000/api/download-model/', {
+            const response = await fetch(`${API_BASE_URL}/backend/api/download-model/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

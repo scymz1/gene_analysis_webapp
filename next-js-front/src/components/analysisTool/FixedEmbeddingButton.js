@@ -21,6 +21,7 @@ ChartJS.register(
     Legend
 );
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://scdrugmap.com';
 export default function FixedEmbeddingButton({ selectedModel, currentDirs }) {
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -37,9 +38,9 @@ export default function FixedEmbeddingButton({ selectedModel, currentDirs }) {
         currentBatch: 0,
         totalBatches: 0
     });
-    const [epochs, setEpochs] = useState(3);
-    const [trainRate, setTrainRate] = useState(0.8);
-    const [learningRate, setLearningRate] = useState(0.0001);
+    // const [epochs, setEpochs] = useState(3);
+    // const [trainRate, setTrainRate] = useState(0.8);
+    // const [learningRate, setLearningRate] = useState(0.0001);
 
     const handleParamChange = (e) => {
         const { name, value } = e.target;
@@ -64,7 +65,7 @@ export default function FixedEmbeddingButton({ selectedModel, currentDirs }) {
         e.preventDefault();
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:8000/api/train-fixed-embeddings/', {
+            const response = await fetch(`${API_BASE_URL}/backend/api/train-fixed-embeddings/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -132,7 +133,7 @@ export default function FixedEmbeddingButton({ selectedModel, currentDirs }) {
 
     const handleDownload = async (path, filename) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/download-file/?path=${encodeURIComponent(path)}`);
+            const response = await fetch(`${API_BASE_URL}/backend/api/download-file/?path=${encodeURIComponent(path)}`);
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');

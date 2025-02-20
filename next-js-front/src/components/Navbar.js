@@ -8,15 +8,20 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gradient-to-r from-orange-400 via-orange-500 to-blue-500 fixed w-full z-20 top-0 start-0 shadow-lg">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-0">
         <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img
-            src="https://flowbite.com/docs/images/logo.svg"
-            className="h-8"
+            src="/logo.png"
+            className="h-16"
             alt="Flowbite Logo"
           />
-          <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
-            Song Lab
+          {/* <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">
+            scDrugMap
+          </span> */}
+          <span className="self-center text-2xl font-bold whitespace-nowrap text-white tracking-wide">
+            <span className="text-orange-200">sc</span>
+            <span className="bg-gradient-to-r from-orange-100 to-blue-200 text-transparent bg-clip-text">Drug</span>
+            <span className="text-blue-200">Map</span>
           </span>
         </Link>
         <button
@@ -66,7 +71,7 @@ export default function Navbar() {
                     : "text-blue-100"
                 } hover:text-white transition-colors duration-200`}
               >
-                Analysis Tool
+                Tool
               </Link>
             </li>
             <li>
@@ -81,7 +86,7 @@ export default function Navbar() {
                 Data
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 href="/help"
                 className={`block py-2 px-3 rounded md:p-0 ${
@@ -92,20 +97,20 @@ export default function Navbar() {
               >
                 Help
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link
-                href="/about"
+                href="/Contact"
                 className={`block py-2 px-3 rounded md:p-0 ${
                   pathname === "/about"
                     ? "text-white font-bold"
                     : "text-blue-100"
                 } hover:text-white transition-colors duration-200`}
               >
-                About
+                Contact
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 href="/references"
                 className={`block py-2 px-3 rounded md:p-0 ${
@@ -116,7 +121,7 @@ export default function Navbar() {
               >
                 References
               </Link>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>

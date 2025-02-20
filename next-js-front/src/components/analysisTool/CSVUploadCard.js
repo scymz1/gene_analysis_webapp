@@ -1,7 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ModelTrainingCard from './ModelTrainingCard';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://scdrugmap.com';
 export default function CSVUploadCard() {
     const [files, setFiles] = useState([]);
     const [message, setMessage] = useState('');
@@ -39,7 +40,7 @@ export default function CSVUploadCard() {
         }
 
         try {
-            const response = await fetch('http://localhost:8000/api/clear-cache/', {
+            const response = await fetch(`${API_BASE_URL}/backend/api/clear-cache/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ export default function CSVUploadCard() {
         formData.append('model', selectedModel);
 
         try {
-            const response = await fetch('http://localhost:8000/api/upload-csv/', {
+            const response = await fetch(`${API_BASE_URL}/backend/api/upload-csv/`, {
                 method: 'POST',
                 body: formData,
             });
@@ -146,7 +147,7 @@ export default function CSVUploadCard() {
 
             {/* File Upload Section and Success Message */}
             <div className="flex-1 flex flex-col">
-                {selectedModel && (
+                {/* {selectedModel && ( */}
                     <>
                         <h2 className="text-2xl font-bold mb-4 text-gray-800 flex-shrink-0">Upload All Input CSV Files</h2>
                         
@@ -224,7 +225,7 @@ export default function CSVUploadCard() {
                             </div>
                         )}
                     </>
-                )}
+                {/* )} */}
                 
                 {/* Training options only shown after successful upload */}
                 {currentDirs && <ModelTrainingCard selectedModel={selectedModel} currentDirs={currentDirs}/>}

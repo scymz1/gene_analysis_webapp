@@ -25,7 +25,12 @@ SECRET_KEY = 'kv7ewg=h8kzex)8t6$#+pgchsaefsqd2x(14qkem3tbx3fl^r6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'scdrugmap.com',
+    'www.scdrugmap.com'
+]
 
 
 # Application definition
@@ -54,8 +59,34 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    "https://scdrugmap.com",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "OPTIONS",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://scdrugmap.com",
     "http://localhost:3000",
 ]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+# CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'geneAnalysis.urls'
 

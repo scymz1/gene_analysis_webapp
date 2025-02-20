@@ -113,36 +113,35 @@ def run(args=None):
         metrics['train_metrics'].append(train_metrics)
         metrics['train_loss'].append(float(loss_sum/len(train_data_loader)))
         metrics['epochs'].append(epoch + 1)
-
-        if epoch == args.ep_num - 1:
-            metrics['final_train'] = train_metrics
+        
+        # Calculate final test metrics
+        model.eval()
+        with torch.no_grad():
+            test_pred_all = []
+            test_lbl_all = []
+            test_loss_sum = 0
             
-            # Calculate final test metrics
-            model.eval()
-            with torch.no_grad():
-                test_pred_all = []
-                test_lbl_all = []
-                test_loss_sum = 0
+            for b in test_data_loader:
+                embeddings, labels = b[0], b[1]
+                pred = model(embeddings.to(device))
+                loss = loss_function(pred, labels.to(device))
                 
-                for b in test_data_loader:
-                    embeddings, labels = b[0], b[1]
-                    pred = model(embeddings.to(device))
-                    loss = loss_function(pred, labels.to(device))
-                    
-                    test_loss_sum += loss
-                    test_pred_all.extend(pred.to('cpu'))
-                    test_lbl_all.extend(labels)
-                
-                test_pred_all_ = torch.stack(test_pred_all)
-                test_lbl_all_ = torch.stack(test_lbl_all)
-                
-                metrics['final_test'] = {
-                    'accuracy': float(Accuracy_score(test_pred_all_, test_lbl_all_)),
-                    'precision': float(Precision_score(test_pred_all_, test_lbl_all_)),
-                    'recall': float(Recall_score(test_pred_all_, test_lbl_all_)),
-                    'f1': float(F1_score(test_pred_all_, test_lbl_all_))
-                }
-                metrics['test_loss'].append(float(test_loss_sum/len(test_data_loader)))
+                test_loss_sum += loss
+                test_pred_all.extend(pred.to('cpu'))
+                test_lbl_all.extend(labels)
+            
+            test_pred_all_ = torch.stack(test_pred_all)
+            test_lbl_all_ = torch.stack(test_lbl_all)
+            
+            metrics['test_loss'].append(float(test_loss_sum/len(test_data_loader)))
+            
+        metrics['final_test'] = {
+            'accuracy': float(Accuracy_score(test_pred_all_, test_lbl_all_)),
+            'precision': float(Precision_score(test_pred_all_, test_lbl_all_)),
+            'recall': float(Recall_score(test_pred_all_, test_lbl_all_)),
+            'f1': float(F1_score(test_pred_all_, test_lbl_all_))
+        }
+        metrics['final_train'] = train_metrics
 
     # Save model and return metrics
     model_path = os.path.join(args.output_dir, 'fixed_embeddings_model.pth')

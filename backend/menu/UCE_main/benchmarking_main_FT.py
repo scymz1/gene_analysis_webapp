@@ -21,11 +21,11 @@ warnings.filterwarnings("ignore", category=UserWarning)
 parser = argparse.ArgumentParser(description='AI4Bio')
 
 # training parameters
-parser.add_argument('--ep_num', type=int, default=3, help='epoch number of training')
-parser.add_argument('--train_batch_size', type=int, default=80, help='')
-parser.add_argument('--test_batch_size', type=int, default=80, help='')
-parser.add_argument('--label_path', type=str, default='/blue/qsong1/wang.qing/benchmark_dataset_API/UCE/labels/', help='')
-parser.add_argument('--data_path', type=str, default="/blue/qsong1/wang.qing/benchmark_dataset_API/UCE/samples/", help='')
+parser.add_argument('--ep_num', type=int, default=1, help='epoch number of training')
+parser.add_argument('--train_batch_size', type=int, default=10, help='')
+parser.add_argument('--test_batch_size', type=int, default=20, help='')
+parser.add_argument('--label_path', type=str, default='/media/volume/Minghao_webserver/gene_analysis_webapp/backend/menu/UCE_DB/labels&samples/20250217_164007/labels', help='')
+parser.add_argument('--data_path', type=str, default="/media/volume/Minghao_webserver/gene_analysis_webapp/backend/menu/UCE_DB/labels&samples/20250217_164007/samples", help='')
 parser.add_argument('--ft_list', type=list, default=['out_proj'], help='')
 parser.add_argument('--train_rate', type=float, default=0.8, help='')
 
@@ -115,11 +115,9 @@ def run(args=None):
     """Run the finetuning process with args"""
     if args is None:
         args = parser.parse_args([])
-        
     seed = 24
     torch.manual_seed(seed)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
     model = get_model(args)
     loss_function = torch.nn.BCEWithLogitsLoss()
     model_parameters = [parameter for parameter in model.parameters() if parameter.requires_grad]
@@ -139,7 +137,8 @@ def run(args=None):
 
     train_data_loader, test_data_loader = dataloader(args)
     total_batches = len(train_data_loader)
-    
+    print(f"Total batches: {total_batches}")
+
     for epoch in range(args.ep_num):
         loss_sum = 0
         pred_all = []
@@ -185,10 +184,10 @@ def run(args=None):
         pred_labels = (pred_probs > 0.5).float()
         
         train_metrics = {
-            'accuracy': float(Accuracy_score(pred_labels, lbl_all_)),
-            'precision': float(Precision_score(pred_labels, lbl_all_)),
-            'recall': float(Recall_score(pred_labels, lbl_all_)),
-            'f1': float(F1_score(pred_labels, lbl_all_))
+            'accuracy': float(Accuracy_score(pred_all_, lbl_all_)),
+            'precision': float(Precision_score(pred_all_, lbl_all_)),
+            'recall': float(Recall_score(pred_all_, lbl_all_)),
+            'f1': float(F1_score(pred_all_, lbl_all_))
         }
         
         print(f"Train metrics: {train_metrics}")  # Debug print
@@ -196,45 +195,45 @@ def run(args=None):
         metrics['train_metrics'].append(train_metrics)
         metrics['train_loss'].append(float(loss_sum/len(train_data_loader)))
         metrics['epochs'].append(epoch + 1)
-
-        if epoch == args.ep_num - 1:
-            metrics['final_train'] = train_metrics
+        
+        # Calculate final test metrics
+        model.eval()
+        with torch.no_grad():
+            test_pred_all = []
+            test_lbl_all = []
+            test_loss_sum = 0
             
-            # Calculate final test metrics
-            model.eval()
-            with torch.no_grad():
-                test_pred_all = []
-                test_lbl_all = []
-                test_loss_sum = 0
+            for b in test_data_loader:
+                batch_sentences, mask, cell_sentences, labels = b[0], b[1], b[2], b[3]
+                batch_sentences = batch_sentences.permute(1, 0).long()
+                pred, _ = model(batch_sentences.to(device), mask=mask.to(device))
+                loss = loss_function(pred, labels.to(device))
                 
-                for b in test_data_loader:
-                    batch_sentences, mask, cell_sentences, labels = b[0], b[1], b[2], b[3]
-                    batch_sentences = batch_sentences.permute(1, 0).long()
-                    pred, _ = model(batch_sentences.to(device), mask=mask.to(device))
-                    loss = loss_function(pred, labels.to(device))
-                    
-                    test_loss_sum += loss.item()
-                    test_pred_all.extend(pred.cpu())
-                    test_lbl_all.extend(labels.cpu())
-                
-                test_pred_all_ = torch.stack(test_pred_all)
-                test_lbl_all_ = torch.stack(test_lbl_all)
-                
-                # Apply sigmoid to test predictions
-                test_pred_probs = torch.sigmoid(test_pred_all_)
-                test_pred_labels = (test_pred_probs > 0.5).float()
-                
-                test_metrics = {
-                    'accuracy': float(Accuracy_score(test_pred_labels, test_lbl_all_)),
-                    'precision': float(Precision_score(test_pred_labels, test_lbl_all_)),
-                    'recall': float(Recall_score(test_pred_labels, test_lbl_all_)),
-                    'f1': float(F1_score(test_pred_labels, test_lbl_all_))
-                }
-                
-                print(f"Test metrics: {test_metrics}")  # Debug print
-                
-                metrics['final_test'] = test_metrics
-                metrics['test_loss'].append(float(test_loss_sum/len(test_data_loader)))
+                test_loss_sum += loss.item()
+                test_pred_all.extend(pred.cpu())
+                test_lbl_all.extend(labels.cpu())
+            
+            test_pred_all_ = torch.stack(test_pred_all)
+            test_lbl_all_ = torch.stack(test_lbl_all)
+            
+            # Apply sigmoid to test predictions
+            test_pred_probs = torch.sigmoid(test_pred_all_)
+            test_pred_labels = (test_pred_probs > 0.5).float()
+
+            metrics['test_loss'].append(float(test_loss_sum/len(test_data_loader)))
+            
+            test_metrics = {
+                'accuracy': float(Accuracy_score(test_pred_all_, test_lbl_all_)),
+                'precision': float(Precision_score(test_pred_all_, test_lbl_all_)),
+                'recall': float(Recall_score(test_pred_all_, test_lbl_all_)),
+                'f1': float(F1_score(test_pred_all_, test_lbl_all_))
+            }
+            
+            print(f"Test metrics: {test_metrics}")  # Debug print
+            
+    metrics['final_train'] = train_metrics
+    metrics['final_test'] = test_metrics
+    
 
     # Save results
     save_dir = os.path.join(args.output_dir, 'finetuned_model')
@@ -261,7 +260,9 @@ def run(args=None):
 
 # Only parse args if running as main script
 if __name__ == '__main__':
+    print("Starting UCE finetuning...")
     args = parser.parse_args()
-    run(args)
+    for i in run(args):
+        print(i)
 
 
