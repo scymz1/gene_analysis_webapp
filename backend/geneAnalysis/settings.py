@@ -29,7 +29,13 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'scdrugmap.com',
-    'www.scdrugmap.com'
+    'www.scdrugmap.com',
+    'jialu-webapp.cis230237.projects.jetstream-cloud.org',
+    'www.jialu-webapp.cis230237.projects.jetstream-cloud.org',
+    'shaperna.com',
+    'www.shaperna.com',
+    'pubcontainer2',
+    'pubqsong1',
 ]
 
 
@@ -59,20 +65,29 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://scdrugmap.com",
+    "https://jialu-webapp.cis230237.projects.jetstream-cloud.org",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://shaperna.com",
+    "http://www.shaperna.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
-    "GET",
-    "POST",
-    "OPTIONS",
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://scdrugmap.com",
     "http://localhost:3000",
+    "https://jialu-webapp.cis230237.projects.jetstream-cloud.org",
+    "http://127.0.0.1:3000",
+    "https://shaperna.com",
+    "http://www.shaperna.com",
 ]
 
 CORS_ALLOW_HEADERS = [

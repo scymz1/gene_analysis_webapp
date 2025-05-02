@@ -1,331 +1,277 @@
 'use client';
-
-import { useState, useEffect } from 'react';
-import { FaFolderClosed } from "react-icons/fa6";
-import { BsFiletypeTxt, BsFiletypeCsv } from "react-icons/bs";
-import { CiFileOn } from "react-icons/ci";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://scdrugmap.com';
+import { useState } from 'react';
+import { API_BASE_URL } from '../../config/urls';
 
 export default function DataPage() {
-    const [files, setFiles] = useState([]);
-    const [currentPath, setCurrentPath] = useState('home/lxndt_filter');
-    const [isLoading, setIsLoading] = useState(true);
-    const [selectedFiles, setSelectedFiles] = useState(new Set());
-    const [mounted, setMounted] = useState(false);
-    const [isDownloading, setIsDownloading] = useState(false);
+    const [file, setFile] = useState(null);
+    const [message, setMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [visualizationUrl, setVisualizationUrl] = useState('');
+    const [helixVisualizationUrl, setHelixVisualizationUrl] = useState('');
+	//  const [outputDir, setOutputDir] = useState('');
 
-    useEffect(() => {
-        setMounted(true);
-        fetchFiles(currentPath);
-    }, [currentPath]);
+    const handleFileChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile && (selectedFile.name.endsWith('.db') || selectedFile.type === 'text/plain')) {
+            setFile(selectedFile);
+            setMessage('');
+        } else {
+            setFile(null);
+            setMessage('Please select a valid .db file');
+        }
+    };
 
-    const fetchFiles = async (path) => {
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        
+        if (!file) {
+            setMessage('Please select a file first');
+            return;
+        }
+
+        setIsLoading(true);
+        setMessage('Uploading file...');
+
         try {
-            const truePath = path.split('/').slice(1).join('/');
-            console.log('Fetching files from:', truePath); // Debug log
-            const response = await fetch(`${API_BASE_URL}/backend/api/files?path=${encodeURIComponent(truePath)}`, {
-                method: 'GET',
-                credentials: 'include',
+            // First, upload the file to create a temporary directory
+            const formData = new FormData();
+            formData.append('files', file);
+            formData.append('model', 'visualization_only'); // Special flag for backend
+            formData.append('use_shape', 'false');
+
+            const uploadResponse = await fetch(`${API_BASE_URL}/backend/api/upload-fasta/`, {
+                method: 'POST',
                 headers: {
                     'Accept': 'application/json',
+                },
+                body: formData,
+                credentials: 'include',
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error(`HTTP error! status: ${uploadResponse.status}`);
+            }
+
+            const uploadData = await uploadResponse.json();
+            setOutputDir(uploadData.output_directory);
+            
+            // Now generate the visualization
+            setMessage('Generating visualization...');
+            
+            const visualizationResponse = await fetch(`${API_BASE_URL}/backend/api/generate-visualization/`, {
+                method: 'POST',
+                headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                    output_dir: uploadData.output_directory
+                }),
             });
+
+            if (!visualizationResponse.ok) {
+                throw new Error(`HTTP error! status: ${visualizationResponse.status}`);
+            }
+
+            const visualizationData = await visualizationResponse.json();
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            setMessage('Visualization generated successfully!');
+            setVisualizationUrl(`${API_BASE_URL}${visualizationData.image_url}`);
+            if (visualizationData.helix_image_url) {
+                setHelixVisualizationUrl(`${API_BASE_URL}${visualizationData.helix_image_url}`);
             }
             
-            const data = await response.json();
-            setFiles(data.files);
         } catch (error) {
-            console.error('Error fetching files:', error);
-            setFiles([]);
+            console.error('Error:', error);
+            setMessage(`Error: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const formatFileSize = (bytes) => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    const clearResults = () => {
+        setFile(null);
+        setMessage('');
+        setVisualizationUrl('');
+        setHelixVisualizationUrl('');
+        setOutputDir('');
     };
-
-    // const formatDate = (date) => {
-    //     // const d = new Date(date);
-    //     // Use a fixed format that will be consistent between server and client
-    //     // return d.toISOString().split('.')[0].replace('T', ' ');
-    // };
-
-    const handleBreadcrumbClick = (index) => {
-        const newPath = currentPath.split('/').slice(0, index + 1).join('/');
-        setCurrentPath(newPath);
-    };
-
-    const handleFolderClick = (folderName) => {
-        // Use path.join equivalent in JS by handling slashes properly
-        const newPath = currentPath.endsWith('/') 
-            ? currentPath + folderName
-            : currentPath + '/' + folderName;
-        setCurrentPath(newPath);
-    };
-
-    const handleFileSelect = (fileName) => {
-        setSelectedFiles((prev) => {
-            const newSet = new Set(prev);
-            if (newSet.has(fileName)) {
-                newSet.delete(fileName);
-            } else {
-                newSet.add(fileName);
-            }
-            return newSet;
-        });
-    };
-
-    const handleSelectAll = () => {
-        if (selectedFiles.size === files.length) {
-            setSelectedFiles(new Set());
-        } else {
-            setSelectedFiles(new Set(files.map(file => file.name)));
-        }
-    };
-
-    const handleDownload = async (fileName) => {
-        try {
-            const truePath = currentPath.split('/').slice(1).join('/');
-            const response = await fetch(`${API_BASE_URL}/backend/api/download?path=${encodeURIComponent(`${truePath}/${fileName}`)}`);
-            
-            if (!response.ok) throw new Error('Download failed');
-            
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        } catch (error) {
-            console.error('Download error:', error);
-        }
-    };
-
-    const handleBulkDownload = async () => {
-        if (selectedFiles.size === 0) return;
-        
-        try {
-            setIsDownloading(true);
-            console.log('Starting bulk download...', selectedFiles);
-            
-            const response = await fetch(`${API_BASE_URL}/backend/api/bulk-download/`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    path: currentPath.split('/').slice(1).join('/'),
-                    files: Array.from(selectedFiles)
-                }),
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'selected_files.zip';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        } catch (error) {
-            console.error('Bulk download error:', error);
-            alert('Failed to download files. Please check the console for details.');
-        } finally {
-            setIsDownloading(false);
-        }
-    };
-
-    const getFileIcon = (file) => {
-        if (file.isDirectory) {
-            return <FaFolderClosed className="text-yellow-600" />;
-        }
-        
-        const extension = file.name.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'txt':
-                return <BsFiletypeTxt className="text-gray-600" />;
-            case 'csv':
-                return <BsFiletypeCsv className="text-green-600" />;
-            default:
-                return <CiFileOn className="text-gray-600" />;
-        }
-    };
-
-    if (!mounted) {
-        return null;
-    }
 
     return (
         <div className="p-10 min-h-screen dark:bg-gray-900">
             <div className="max-w-7xl mx-auto">
-                {/* Breadcrumb and Button Container */}
-                <div className="flex justify-between items-center mb-6">
-                    {/* Breadcrumb */}
-                    <nav className="flex" aria-label="Breadcrumb">
-                        <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-                            {currentPath.split('/').map((segment, index, array) => (
-                                <li key={index} className="inline-flex items-center">
-                                    <a
-                                        href="#"
-                                        onClick={() => handleBreadcrumbClick(index)}
-                                        className={`inline-flex items-center text-sm font-medium ${
-                                            index === array.length - 1
-                                                ? 'text-gray-500 dark:text-gray-400'
-                                                : 'text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white'
-                                        }`}
-                                    >
-                                        {index === 0 ? (
-                                            <svg
-                                                className="w-3 h-3 me-2.5"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="currentColor"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
-                                            </svg>
-                                        ) : (
-                                            <svg
-                                                className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 6 10"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="m1 9 4-4-4-4"
-                                                />
-                                            </svg>
-                                        )}
-                                        {segment || 'Home'}
-                                    </a>
-                                </li>
-                            ))}
-                        </ol>
-                    </nav>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+                    RNA Structure Visualization
+                </h1>
 
-                    {/* Download Button - Always visible */}
-                    <button
-                        onClick={handleBulkDownload}
-                        disabled={selectedFiles.size === 0 || isDownloading}
-                        className="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
-                    >
-                        {isDownloading ? (
-                            <>
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Preparing Download...
-                            </>
-                        ) : (
-                            <>
-                                <svg className="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 18">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 1v11m0 0 4-4m-4 4L4 8m11 4v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3"/>
-                                </svg>
-                                {selectedFiles.size > 0 ? `Download Selected (${selectedFiles.size})` : 'Download Selected'}
-                            </>
-                        )}
-                    </button>
+                {/* Sample Images Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-8">
+                    <div className="p-6">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+                            Sample Visualizations
+                        </h2>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                            Here are some example RNA structure visualizations that can be generated using our tools.
+                        </p>
+                        <div className="grid grid-cols-3 gap-6">
+                            <div className="relative group h-[300px]">
+                                <img 
+                                    src={`${API_BASE_URL}/backend/api/download-result/?output_dir=AnalysisTools/visualization/sample_images&file=rna_structure%20(1).png`}
+                                    alt="Sample RNA Structure 1"
+                                    className="w-full h-full object-contain rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105"
+                                />
+                            </div>
+                            <div className="relative group h-[300px]">
+                                <img 
+                                    src={`${API_BASE_URL}/backend/api/download-result/?output_dir=AnalysisTools/visualization/sample_images&file=rna_structure%20(2).png`}
+                                    alt="Sample RNA Structure 2"
+                                    className="w-full h-full object-contain rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105"
+                                />
+                            </div>
+                            <div className="relative group h-[300px]">
+                                <img 
+                                    src={`${API_BASE_URL}/backend/api/download-result/?output_dir=AnalysisTools/visualization/sample_images&file=rna_structure%20(3).png`}
+                                    alt="Sample RNA Structure 3"
+                                    className="w-full h-full object-contain rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* File Table */}
-                <div className="overflow-x-auto rounded-lg shadow">
-                    <table className="w-full text-sm text-left">
-                        <thead className="text-xs uppercase bg-gray-50 dark:bg-gray-800">
-                            <tr>
-                                <th className="px-6 py-3">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedFiles.size === files.length}
-                                        onChange={handleSelectAll}
-                                    />
-                                </th>
-                                <th className="px-6 py-3 text-gray-700 dark:text-gray-300">Name</th>
-                                <th className="px-6 py-3 text-gray-700 dark:text-gray-300">Date Modified</th>
-                                <th className="px-6 py-3 text-gray-700 dark:text-gray-300">Size</th>
-                                <th className="px-6 py-3 text-gray-700 dark:text-gray-300">Kind</th>
-                                <th className="px-6 py-3 text-gray-700 dark:text-gray-300">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {isLoading ? (
-                                <tr className="bg-white dark:bg-gray-900">
-                                    <td colSpan="6" className="px-6 py-4 text-center text-gray-700 dark:text-gray-300">
-                                        Loading...
-                                    </td>
-                                </tr>
-                            ) : (
-                                files.map((file, index) => (
-                                    <tr
-                                        key={index}
-                                        className="group bg-white dark:bg-gray-900 border-b dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
-                                    >
-                                        <td className="px-6 py-4">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedFiles.has(file.name)}
-                                                onChange={() => handleFileSelect(file.name)}
-                                            />
-                                        </td>
-                                        <td
-                                            className="px-6 py-4 text-gray-700 dark:text-gray-300 flex items-center gap-2 cursor-pointer relative"
-                                            onClick={() => file.isDirectory && handleFolderClick(file.name)}
+                {/* Upload Form Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <div className="p-6">
+                        <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+                            Upload Your Result
+                        </h2>
+                        
+                        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg mb-6">
+                            <p className="text-sm text-blue-800 dark:text-blue-200">
+                                Upload a result.db file to generate a visualization of the RNA secondary structure.
+                            </p>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Result DB File
+                                </label>
+                                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 h-32 flex items-center justify-center bg-gray-50 dark:bg-gray-700/50 hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+                                    <div className="text-center">
+                                        <input
+                                            type="file"
+                                            accept=".db,.txt"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            id="result-db-upload"
+                                        />
+                                        <label
+                                            htmlFor="result-db-upload"
+                                            className="cursor-pointer flex flex-col items-center space-y-2"
                                         >
-                                            {getFileIcon(file)} {file.name}
-                                            {!file.isDirectory && (
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleDownload(file.name);
-                                                    }}
-                                                    className="invisible group-hover:visible absolute right-2 hover:text-blue-600"
-                                                >
-                                                    <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 18">
-                                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 1v11m0 0 4-4m-4 4L4 8m11 4v3a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3"/>
-                                                    </svg>
-                                                </button>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                            {file.modifiedTime}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                            {formatFileSize(file.size)}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                            {file.isDirectory ? 'Folder' : file.name.split('.').pop()}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                            <span className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
+                                                Choose File
+                                            </span>
+                                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                                                {file ? file.name : 'No file chosen'}
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="flex gap-4">
+                                <button
+                                    type="submit"
+                                    disabled={isLoading || !file}
+                                    className={`flex-1 py-3 rounded-lg text-white font-medium transition-colors
+                                        ${(isLoading || !file)
+                                            ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+                                            : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'}`}
+                                >
+                                    {isLoading ? 'Processing...' : 
+                                     !file ? 'Please select a file first' : 
+                                     'Generate Visualization'}
+                                </button>
+                                
+                                {visualizationUrl && (
+                                    <button
+                                        type="button"
+                                        onClick={clearResults}
+                                        className="px-4 py-3 rounded-lg text-white font-medium bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 transition-colors"
+                                    >
+                                        Clear Results
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                        
+                        {message && (
+                            <div className={`mt-4 p-3 rounded-lg break-words whitespace-pre-wrap max-w-full overflow-x-auto
+                                ${message.includes('success')
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                    : message.includes('Error')
+                                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                                        : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'}`}
+                            >
+                                <div className="break-all">
+                                    {message}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {visualizationUrl && (
+                            <div className="mt-6">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                                    RNA Structure Visualization
+                                </h3>
+                                <div className="flex justify-center">
+                                    <img 
+                                        src={visualizationUrl} 
+                                        alt="RNA Structure Visualization" 
+                                        className="max-w-full h-auto border rounded-lg shadow-md dark:border-gray-700"
+                                    />
+                                </div>
+                                <div className="mt-4 flex justify-center">
+                                    <a
+                                        href={visualizationUrl}
+                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                        download
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Download Image
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
+                        {helixVisualizationUrl && (
+                            <div className="mt-8">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+                                    Double Helix Visualization
+                                </h3>
+                                <div className="flex justify-center">
+                                    <img 
+                                        src={helixVisualizationUrl} 
+                                        alt="Double Helix Visualization" 
+                                        className="max-w-full h-auto border rounded-lg shadow-md dark:border-gray-700"
+                                    />
+                                </div>
+                                <div className="mt-4 flex justify-center">
+                                    <a
+                                        href={helixVisualizationUrl}
+                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                        download
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Download Helix Image
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

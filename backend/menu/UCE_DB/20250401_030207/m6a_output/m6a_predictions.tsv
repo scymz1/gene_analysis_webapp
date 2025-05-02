@@ -1,0 +1,4 @@
+Seq_ID	Position	Score(Binary)	Score(Spectrum)	Score(Combined)	Classification
+seq	9	0.324	0.525	0.405	Non-m6A site
+seq	45	0.493	0.525	0.506	Non-m6A site
+seq	50	0.582	0.525	0.559	m6A site (Moderate confidence)

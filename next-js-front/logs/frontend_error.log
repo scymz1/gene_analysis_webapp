@@ -1,0 +1,7 @@
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'serverActions', 'api'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'serverActions', 'api'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+npm error A complete log of this run can be found in: /pubapps/qsong1/.npm/_logs/2025-04-04T06_23_49_140Z-debug-0.log

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import FinetuneButton from './FinetuneButton';
 import FixedEmbeddingButton from './FixedEmbeddingButton';
-
+import PredictButton from './PredictButton';
 export default function ModelTrainingCard({ selectedModel, currentDirs }) {
     const [activeTab, setActiveTab] = useState('fixed');
 
@@ -83,6 +83,13 @@ export default function ModelTrainingCard({ selectedModel, currentDirs }) {
                     <div className={`${activeTab === 'finetune' ? 'block' : 'hidden'}`}>
                         <FinetuneButton selectedModel={selectedModel} currentDirs={currentDirs}/>
                     </div>
+                </div>
+
+                <div className="p-6 border-t">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        Step 3: Make Predictions
+                    </h3>
+                    <PredictButton selectedModel={selectedModel} currentDirs={currentDirs}/>
                 </div>
             </div>
 

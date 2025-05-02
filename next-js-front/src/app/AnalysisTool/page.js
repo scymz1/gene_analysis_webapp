@@ -7,9 +7,13 @@ export default function AnalysisTool() {
     <div className="p-10 min-h-screen">
       {/* <div className="flex gap-8 h-[calc(100vh-theme(spacing.20))]"> */}
         {/* Left side - CSV Upload */}
-        <div className="w-full h-full flex justify-center items-center">
-          <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col">
-            <CSVUploadCard/>
+            
+        <div className="w-full h-full p-10 flex justify-center items-start">
+          <div className="bg-white rounded-lg shadow-lg p-6 mr-5 flex flex-col w-full">
+            <CSVUploadCard shape={false}/>
+          </div>
+          <div className="bg-white rounded-lg shadow-lg p-6 ml-5 flex flex-col w-full">
+            <CSVUploadCard shape={true}/>
           </div>
         </div>
 

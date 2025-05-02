@@ -1,10 +1,9 @@
-
-> next-js-front@0.1.0 start
-> next start
-
    ▲ Next.js 15.1.6
-   - Local:        http://localhost:3000
-   - Network:      http://10.1.200.176:3000
+   - Local:        http://localhost:21007
+   - Network:      http://0.0.0.0:21007
 
  ✓ Starting...
- ✓ Ready in 449ms
+ ⚠ Invalid next.config.ts options detected: 
+ ⚠     Unrecognized key(s) in object: 'serverActions', 'api'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ✓ Ready in 1272ms

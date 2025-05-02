@@ -11,9 +11,9 @@ export default function HomePage() {
             {/* Hero Section */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6 flex-shrink-0">
                 <div className="p-8 bg-gradient-to-r from-blue-50 to-white">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-4">Welcome to scDrugMap</h1>
+                    <h1 className="text-4xl font-bold text-gray-800 mb-4">Welcome to ShapeRNA Webserver</h1>
                     <p className="text-lg text-gray-600 max-w-2xl">
-                        Your comprehensive platform for single-cell drug response analysis and mapping.
+                    A comprehensive platform for predicting RNA secondary strucutures.
                     </p>
                 </div>
             </div>
@@ -30,7 +30,7 @@ export default function HomePage() {
                         </div>
                         <h3 className="ml-3 text-xl font-semibold text-gray-800">Read Me</h3>
                     </div>
-                    <p className="text-gray-600">Please read the instructions before using the analysis tools.</p>
+                    <p className="text-gray-600">Please read the instructions before using the tools.</p>
                 </div>
 
                 {/* LLM Training Card */}
@@ -41,9 +41,9 @@ export default function HomePage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <h3 className="ml-3 text-xl font-semibold text-gray-800">LLM Training</h3>
+                        <h3 className="ml-3 text-xl font-semibold text-gray-800">Tools</h3>
                     </div>
-                    <p className="text-gray-600">Powerful tools for training/fine-tuning LLMs using your single-cell data and drug responses.</p>
+                    <p className="text-gray-600">Tools for predicting RNA secondary structures.</p>
                 </div>
 
                 {/* Data Browser Card */}
@@ -56,7 +56,7 @@ export default function HomePage() {
                         </div>
                         <h3 className="ml-3 text-xl font-semibold text-gray-800">Data Browser</h3>
                     </div>
-                    <p className="text-gray-600">Browse and download comprehensive datasets and analysis results.</p>
+                    <p className="text-gray-600">Browse and download analysis results.</p>
                 </div>
             </div>
 
@@ -66,7 +66,7 @@ export default function HomePage() {
                 <div className="flex flex-col space-y-4">
                     <div className="flex items-center">
                         <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">1</div>
-                        <p className="ml-4 text-gray-600">Upload your single-cell data</p>
+                        <p className="ml-4 text-gray-600">Upload your data</p>
                     </div>
                     <div className="flex items-center">
                         <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">2</div>
@@ -74,7 +74,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center">
                         <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">3</div>
-                        <p className="ml-4 text-gray-600">Explore results and visualizations</p>
+                        <p className="ml-4 text-gray-600">Explore results</p>
                     </div>
                 </div>
             </div>

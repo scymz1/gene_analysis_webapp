@@ -1,0 +1,32 @@
+LOGMSG>	2025-03-07 21:17:11,497	seismicrna.main	INFO
+This is SEISMIC-RNA version 0.20.0
+
+LOGMSG>	2025-03-07 21:17:11,498	seismicrna.core.path	DEBUG
+File /home/exouser/gene_analysis_webapp/backend/menu/UCE_DB/20250307_211710/output/result.ct matches ["Segment: 'rna-ct'"]
+
+LOGMSG>	2025-03-07 21:17:11,498	seismicrna.core.task	INFO
+Began running 1 task(s) in series
+
+LOGMSG>	2025-03-07 21:17:11,498	seismicrna.core.task	DEBUG
+Began task ct_to_db(PosixPath('/home/exouser/gene_analysis_webapp/backend/menu/UCE_DB/20250307_211710/output/result.ct'), force=False)
+
+LOGMSG>	2025-03-07 21:17:11,504	seismicrna.core.rna.io	WARNING
+Title 'ENERGY = -35.5  seq' is repeated in /home/exouser/gene_analysis_webapp/backend/menu/UCE_DB/20250307_211710/output/result.ct
+
+LOGMSG>	2025-03-07 21:17:11,525	seismicrna.core.rna.io	WARNING
+Title 'ENERGY = -32.8  seq' is repeated in /home/exouser/gene_analysis_webapp/backend/menu/UCE_DB/20250307_211710/output/result.ct
+
+LOGMSG>	2025-03-07 21:17:11,535	seismicrna.core.rna.io	INFO
+Wrote /home/exouser/gene_analysis_webapp/backend/menu/UCE_DB/20250307_211710/output/result.db
+
+LOGMSG>	2025-03-07 21:17:11,535	seismicrna.core.task	DEBUG
+Ended task ct_to_db(PosixPath('/home/exouser/gene_analysis_webapp/backend/menu/UCE_DB/20250307_211710/output/result.ct'), force=False):
+/home/exouser/gene_analysis_webapp/backend/menu/UCE_DB/20250307_211710/output/result.db
+
+
+LOGMSG>	2025-03-07 21:17:11,535	seismicrna.core.task	INFO
+Ended running 1 task(s) in series
+
+LOGMSG>	2025-03-07 21:17:11,535	seismicrna.core.task	INFO
+All 1 task(s) completed successfully
+

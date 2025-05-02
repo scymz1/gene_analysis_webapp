@@ -17,7 +17,7 @@ export default function CardGrid() {
       ),
       backContent: (
         <p className="text-center">
-          Read the instructions for preparing and processing your data before using LLM tools.
+          Please read the instructions before using the tools.
         </p>
       ),
       color: "#38b2ac", // Teal
@@ -27,14 +27,14 @@ export default function CardGrid() {
       frontContent: (
         <div>
           <h3 className="text-lg font-bold uppercase text-center">
-            LLM Tools
+            Tools
           </h3>
           {/* <p className="mt-2">🔄</p> */}
         </div>
       ),
       backContent: (
         <p className="text-center">
-          Tools for training/fine-tuning LLMs using your single-cell data and drug responses.
+          Tools for predicting RNA secondary structures.
         </p>
       ),
       color: "#d69e2e", // Yellow
@@ -44,14 +44,14 @@ export default function CardGrid() {
       frontContent: (
         <div>
           <h3 className="text-lg font-bold uppercase text-center">
-          Explore Data
+          Explore Analysis
           </h3>
           {/* <p className="mt-2">🧪</p> */}
         </div>
       ),
       backContent: (
         <p className="text-center">
-          Browse and download/upload comprehensive single-cell datasets.
+          Explore and download analysis results.
         </p>
       ),
       color: "#9f7aea", // Purple

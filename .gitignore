@@ -19,6 +19,9 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+backend/menu/AnalysisTools
+next-js-front/node_modules
+backend/menu/JiaLuModels
 
 # Model files and data
 *.npz

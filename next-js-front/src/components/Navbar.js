@@ -8,10 +8,10 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gradient-to-r from-orange-400 via-orange-500 to-blue-500 fixed w-full z-20 top-0 start-0 shadow-lg">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-0">
-        <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto m-0 p-0">
+        <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse ml-0 pl-0">
           <img
-            src="/logo.png"
+            src="/RNA-logo3.png"
             className="h-16"
             alt="Flowbite Logo"
           />
@@ -19,9 +19,9 @@ export default function Navbar() {
             scDrugMap
           </span> */}
           <span className="self-center text-2xl font-bold whitespace-nowrap text-white tracking-wide">
-            <span className="text-orange-200">sc</span>
-            <span className="bg-gradient-to-r from-orange-100 to-blue-200 text-transparent bg-clip-text">Drug</span>
-            <span className="text-blue-200">Map</span>
+            <span className="text-orange-200">Sha</span>
+            <span className="bg-gradient-to-r from-orange-100 to-blue-200 text-transparent bg-clip-text">pe</span>
+            <span className="text-blue-200">RNA</span>
           </span>
         </Link>
         <button
@@ -95,7 +95,7 @@ export default function Navbar() {
                     : "text-blue-100"
                 } hover:text-white transition-colors duration-200`}
               >
-                Data
+                Analysis
               </Link>
             </li>
             {/* <li>

@@ -1,0 +1,14 @@
+# 设置 DATAPATH 到数据表目录
+export DATAPATH=/home/exouser/gene_analysis_webapp/RNAstructure/data_tables
+
+# 添加可执行文件目录到 PATH
+export PATH=$PATH:/home/exouser/gene_analysis_webapp/RNAstructure/exe
+
+# 预测RNA二级结构
+./RNAstructureScript Fold sequence.fasta output.ct
+
+# 将 CT 文件转换为 dot-bracket 格式
+./RNAstructureScript ct2dot input.ct 1 output.dot
+
+# 计算热力学参数
+./RNAstructureScript EnergyCalc input.ct output.energy
