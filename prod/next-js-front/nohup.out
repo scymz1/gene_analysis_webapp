@@ -1,0 +1,11 @@
+   ▲ Next.js 15.1.6
+   - Local:        http://localhost:21005
+   - Network:      http://0.0.0.0:21005
+
+ ✓ Starting...
+ ✓ Ready in 1099ms
+npm notice
+npm notice New minor version of npm available! 11.1.0 -> 11.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.2.0
+npm notice To update run: npm install -g npm@11.2.0
+npm notice

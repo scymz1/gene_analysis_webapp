@@ -1,0 +1,7 @@
+   ▲ Next.js 15.1.6
+   - Local:        http://localhost:21005
+   - Network:      http://0.0.0.0:21005
+
+ ✓ Starting...
+ ✓ Ready in 933ms
+process.env.NEXT_PUBLIC_API_URL: undefined
